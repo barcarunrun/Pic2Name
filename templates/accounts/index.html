@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="content">
+        <title>ファイルアップローダ</title>
+    </head>
+    <body>
+     <div id="container" style="margin: auto;">
+  <video id="video" autoplay width="620" height="320"></video>
+  <canvas id="canvas" width="320" height="320"></canvas>
+
+<!--  <button onclick="takePhoto();">写真撮影!!</button>-->
+
+     </div>
+<form name="form1" method="POST">
+        {% csrf_token %}
+     <input type="hidden" name="photo" value="sample" >
+    <input type="button" value="写真撮影!!" onclick="takePhoto();">
+    <input type="submit" value="送信" onclick="base64submit();">
+</form>
+    </body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+
+<script>
+let video  = document.getElementById('video')
+let canvas = document.getElementById('canvas')
+let imageCapture
+
+window.onload = _ => {
+
+  navigator.mediaDevices.getUserMedia({video: true})
+  .then(mediaStream => {
+    video.srcObject = mediaStream
+
+    let videoTrack = mediaStream.getVideoTracks()[0]
+    imageCapture = new ImageCapture(videoTrack)
+  })
+
+}
+
+function takePhoto() {
+    imageCapture.takePhoto()
+        .then(blob => createImageBitmap(blob))
+        .then(imageBitmap => drawCanvas(canvas, imageBitmap))
+}
+
+/**
+ * https://github.com/GoogleChrome/samples/blob/gh-pages/image-capture/grab-frame-take-photo.js
+ */
+function drawCanvas(canvas, img) {
+    canvas.width = getComputedStyle(canvas).width.split('px')[0];
+    canvas.height = getComputedStyle(canvas).height.split('px')[0];
+    let ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
+    let x = (canvas.width - img.width * ratio) / 2;
+    let y = (canvas.height - img.height * ratio) / 2;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height,
+        x, y, img.width * ratio, img.height * ratio);
+    base64submit(canvas)
+}
+
+function base64submit(){
+    let canvas1 = document.getElementById('canvas')
+    var base64 = canvas1.toDataURL('image/png');
+    console.log('base64:'+base64)
+    document.form1.photo.value=base64.replace(/^.*,/, '');
+}
+
+function base64submit(canvas){
+    var base64 = canvas.toDataURL('image/png');
+    console.log('base64:'+base64)
+    document.form1.photo.value=base64.replace(/^.*,/, '');
+}
+
+
+
+function base64ToBlob(base64) {
+  var binary = atob(base64);
+  var buffer = new Uint8Array(binary.length)
+  for (var i = 0; i < binary.length; i++) {
+    buffer[i] = binary.charCodeAt(i);
+  }
+  return new Blob([buffer.buffer], {
+     type: 'image/jpeg'
+  });
+}
+
+function saveCanvas(saveType,canvas){
+
+    var imageType = "image/png";
+    var fileName = "sample.png";
+    if(saveType === "jpeg"){
+        imageType = "image/jpeg";
+        fileName = "sample.jpg";
+    }
+
+    // base64エンコードされたデータを取得 「data:image/png;base64,iVBORw0k～」
+    var base64 = canvas.toDataURL(imageType);
+    // base64データをblobに変換
+    var blob = Base64toBlob(base64);
+    // blobデータをa要素を使ってダウンロード
+    saveBlob(blob, fileName);
+}
+
+// Base64データをBlobデータに変換
+function Base64toBlob(base64)
+{
+    // カンマで分割して以下のようにデータを分ける
+    // tmp[0] : データ形式（data:image/png;base64）
+    // tmp[1] : base64データ（iVBORw0k～）
+    var tmp = base64.split(',');
+    // base64データの文字列をデコード
+    var data = atob(tmp[1]);
+    // tmp[0]の文字列（data:image/png;base64）からコンテンツタイプ（image/png）部分を取得
+  var mime = tmp[0].split(':')[1].split(';')[0];
+    //  1文字ごとにUTF-16コードを表す 0から65535 の整数を取得
+  var buf = new Uint8Array(data.length);
+  for (var i = 0; i < data.length; i++) {
+        buf[i] = data.charCodeAt(i);
+    }
+    // blobデータを作成
+  var blob = new Blob([buf], { type: mime });
+    return blob;
+}
+
+// 画像のダウンロード
+function saveBlob(blob, fileName)
+{
+    var url = (window.URL || window.webkitURL);
+    // ダウンロード用のURL作成
+    var dataUrl = url.createObjectURL(blob);
+    // イベント作成
+    var event = document.createEvent("MouseEvents");
+    event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    // a要素を作成
+    var a = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+    // ダウンロード用のURLセット
+    a.href = dataUrl;
+    // ファイル名セット
+    a.download = fileName;
+    // イベントの発火
+    a.dispatchEvent(event);
+}
+
+</script>
+
+</html>
