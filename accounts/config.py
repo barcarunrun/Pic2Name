@@ -1,1 +1,1 @@
-API_KEY = "AIzaSyD_LVaJe_9pTQleFuT2N0vMoPNznXLlStg"
+API_KEY = "Sample"
