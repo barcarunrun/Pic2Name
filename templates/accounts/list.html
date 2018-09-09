@@ -1,0 +1,29 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="ja">-->
+<!--<head>-->
+    <!--<meta charset="UTF-8">-->
+    <!--<title>Title</title>-->
+<!--</head>-->
+<!--<body>-->
+
+{% extends 'accounts/login.html' %}
+{% block content %}
+<section id="page3">
+    <div class="pic_inventory flex_box">
+    {% for file in Files %}
+        <div>
+            <span>
+                <b>{{ file.result.result1}}</b><br>
+                <!--{{ file.file_name }}-->
+                {{ file.upload_time|date:"Y/m/d f"}}
+                <!--{{ file.userID}}-->
+            </span>
+            <img src="{{UPLOADE_DIR_Storage}}{{ file.file_name }}">
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock content %}
+
+<!--</body>-->
+<!--</html>-->

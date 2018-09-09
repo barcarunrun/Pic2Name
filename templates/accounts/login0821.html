@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/style.css' %}">
+    <title>Pic2Name</title>
+</head>
+<body>
+    <header>
+      <div class="center">Pic 2 Name</div>
+    </header>
+
+    {% block content %}
+    <section id="page1">
+        <h1>Pic 2 Name</h1>
+        <form action="/" method="post">
+        <!--<form action="/accounts/login/" method="post">-->
+            {% csrf_token %}
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+            {% endif %}
+            <input type="text" name="username" class="login_enter" placeholder="Enter ID">
+            <input type="password" name="password" class="login_enter" placeholder="Enter Password">
+            <button type="submit" name="login" id="push-button">Log In</button>
+        </form>
+    </section>
+    {% endblock %}
+
+    <footer class="page__content bottom">
+        {% if current_page == "shoot" %}
+        <p class="sign_up center"></p>
+        {% elif current_page == "result" %}
+        <a href="{% url 'account_index' %}"><i class="fas fa-camera"></i></a>
+        {% else %}
+        <a href="{% url 'new' %}" class="sign_up center">Sign Up.</a>
+        <!--<p class="sign_up center">Sign Up.</p>-->
+        {% endif %}
+    </footer>
+</body>
+</html>
